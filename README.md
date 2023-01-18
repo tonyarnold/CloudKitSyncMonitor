@@ -11,12 +11,11 @@ This SwiftUI view will display a red error image at the top of the screen if the
 ```swift
 import CloudKitSyncMonitor
 struct SyncStatusView: View {
-    @available(iOS 14.0, *)
     @ObservedObject var syncMonitor = SyncMonitor.shared
 
     var body: some View {
         // Show sync status if there's a sync error 
-         if #available(iOS 14.0, *), syncMonitor.syncStateSummary.isBroken {
+         if syncMonitor.syncStateSummary.isBroken {
              Image(systemName: syncMonitor.syncStateSummary.symbolName)
                  .foregroundColor(syncMonitor.syncStateSummary.symbolColor)
          }
@@ -30,15 +29,12 @@ removed):
 ```swift
 import CloudKitSyncMonitor
 struct SyncStatusView: View {
-    @available(iOS 14.0, *)
     @ObservedObject var syncMonitor = SyncMonitor.shared
 
     var body: some View {
         // Show sync status 
-        if #available(iOS 14.0, *) {
-            Image(systemName: syncMonitor.syncStateSummary.symbolName)
-                .foregroundColor(syncMonitor.syncStateSummary.symbolColor)
-        }
+        Image(systemName: syncMonitor.syncStateSummary.symbolName)
+            .foregroundColor(syncMonitor.syncStateSummary.symbolColor)
     }
 }
 ```
@@ -46,8 +42,7 @@ struct SyncStatusView: View {
 You could change the if clause to this to display an icon only when a sync is in progress or there's an error:
 
 ```swift
-if #available(iOS 14.0, *),
-    (syncMonitor.syncStateSummary.isBroken || syncMonitor.syncStateSummary.inProgress) {
+if (syncMonitor.syncStateSummary.isBroken || syncMonitor.syncStateSummary.inProgress) {
     Image(systemName: syncMonitor.syncStateSummary.symbolName)
         .foregroundColor(syncMonitor.syncStateSummary.symbolColor)
 }
@@ -56,7 +51,7 @@ if #available(iOS 14.0, *),
 Or check for specific states:
 
 ```swift
-if #available(iOS 14.0, *), case .accountNotAvailable = syncMonitor.syncStateSummary {
+if case .accountNotAvailable = syncMonitor.syncStateSummary {
     Text("Hey, log into your iCloud account if you want to sync")
 }
 ```
@@ -160,7 +155,10 @@ dependencies: [
 targets: [
     .target(
         name: "MyApp", // Where "MyApp" is the name of your app
-        dependencies: ["CloudKitSyncMonitor"]),
+        dependencies: [
+            .product("CloudKitSyncMonitor", package: "CloudKitSyncMonitor")
+        ]
+    ),
 ]
 ```
 

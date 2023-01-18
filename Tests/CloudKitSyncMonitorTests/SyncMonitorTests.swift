@@ -11,7 +11,6 @@ import XCTest
 import CoreData
 @testable import CloudKitSyncMonitor
 
-@available(iOS 14.0, macCatalyst 14.0, OSX 11, tvOS 14.0, *)
 final class SyncMonitorTests: XCTestCase {
     func testCanDetectImportError() {
         // Given an active network connection
@@ -131,13 +130,4 @@ final class SyncMonitorTests: XCTestCase {
             XCTAssert(false, "importState should be .notStarted")
         }
     }
-
-    static var allTests = [
-        ("testCanDetectImportError", testCanDetectImportError),
-        ("testCanDetectExportError", testCanDetectExportError),
-        ("testCanDetectImportSuccess", testCanDetectImportSuccess),
-        ("testCanDetectExportSuccess", testCanDetectExportSuccess),
-        ("testSetsStatusToInProgressWhenEventHasNoEndDate", testSetsStatusToInProgressWhenEventHasNoEndDate),
-        ("testSetsStatusToNotStartedOnStartup", testSetsStatusToNotStartedOnStartup),
-    ]
 }
