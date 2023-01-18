@@ -1,15 +1,15 @@
 //
 //  SyncMonitor.swift
-//  
+//
 //
 //  Created by Grant Grueninger on 9/23/20.
 //
 
+import CloudKit
 import Combine
 import CoreData
 import Network
 import SwiftUI
-import CloudKit
 
 /// An object, usually used as a singleton, that provides, and publishes, the current state of `NSPersistentCloudKitContainer`'s sync
 ///
@@ -159,88 +159,88 @@ public class SyncMonitor: ObservableObject {
         /// A symbol you could use to display the status
         public var symbolName: String {
             switch self {
-            case .noNetwork:
-                return "bolt.horizontal.icloud"
-            case .accountNotAvailable:
-                return "lock.icloud"
-            case .error:
-                return "exclamationmark.icloud"
-            case .notSyncing:
-                return "xmark.icloud"
-            case .notStarted:
-                return "bolt.horizontal.icloud"
-            case .inProgress:
-                return "arrow.clockwise.icloud"
-            case .succeeded:
-                return "icloud"
-            case .unknown:
-                return "icloud.slash"
+                case .noNetwork:
+                    return "bolt.horizontal.icloud"
+                case .accountNotAvailable:
+                    return "lock.icloud"
+                case .error:
+                    return "exclamationmark.icloud"
+                case .notSyncing:
+                    return "xmark.icloud"
+                case .notStarted:
+                    return "bolt.horizontal.icloud"
+                case .inProgress:
+                    return "arrow.clockwise.icloud"
+                case .succeeded:
+                    return "icloud"
+                case .unknown:
+                    return "icloud.slash"
             }
         }
-        
+
         // A string you could use to display the status
         public var description: String {
             switch self {
-            case .noNetwork:
-                return "No network available"
-            case .accountNotAvailable:
-                return "No iCloud account"
-            case .error:
-                return "Error"
-            case .notSyncing:
-                return "Not syncing to iCloud"
-            case .notStarted:
-                return "Sync not started"
-            case .inProgress:
-                return "Syncing..."
-            case .succeeded:
-                return "Synced with iCloud"
-            case .unknown:
-                return "Error"
+                case .noNetwork:
+                    return "No network available"
+                case .accountNotAvailable:
+                    return "No iCloud account"
+                case .error:
+                    return "Error"
+                case .notSyncing:
+                    return "Not syncing to iCloud"
+                case .notStarted:
+                    return "Sync not started"
+                case .inProgress:
+                    return "Syncing..."
+                case .succeeded:
+                    return "Synced with iCloud"
+                case .unknown:
+                    return "Error"
             }
         }
 
         /// A color you could use for the symbol
         public var symbolColor: Color {
             switch self {
-            case .noNetwork:
-                return .gray
-            case .accountNotAvailable:
-                return .gray
-            case .error:
-                return .red
-            case .notSyncing:
-                return .red
-            case .notStarted:
-                return .gray
-            case .inProgress:
-                return .gray
-            case .succeeded:
-                return .green
-            case .unknown:
-                return .red
+                case .noNetwork:
+                    return .gray
+                case .accountNotAvailable:
+                    return .gray
+                case .error:
+                    return .red
+                case .notSyncing:
+                    return .red
+                case .notStarted:
+                    return .gray
+                case .inProgress:
+                    return .gray
+                case .succeeded:
+                    return .green
+                case .unknown:
+                    return .red
             }
         }
 
         /// Returns true if the state indicates that sync is broken
         public var isBroken: Bool {
             switch self {
-            case .noNetwork:
-                return false
-            case .accountNotAvailable:
-                return false
-            case .error:
-                return true
-            case .notSyncing:
-                return true
-            case .notStarted:
-                return false
-            case .inProgress:
-                return false
-            case .succeeded:
-                return false
-            case .unknown:
-                return true
+                case .noNetwork:
+                    return false
+                case .accountNotAvailable:
+                    return false
+                case .error:
+                    return true
+                case .notSyncing:
+                    return true
+                case .notStarted:
+                    return false
+                case .inProgress:
+                    return false
+                case .succeeded:
+                    return false
+                case .unknown:
+                    return true
             }
         }
 
@@ -284,7 +284,8 @@ public class SyncMonitor: ObservableObject {
     /// That is, the user's iCloud account status is "available", the network is available, there are no recorded sync errors, and setup is complete and succeeded.
     public var shouldBeSyncing: Bool {
         if case .available = iCloudAccountStatus, self.networkAvailable == true, !syncError,
-           case .succeeded = setupState {
+           case .succeeded = setupState
+        {
             return true
         }
         return false
@@ -371,7 +372,7 @@ public class SyncMonitor: ObservableObject {
 
     /// Is the network available?
     ///
-    /// This is true if the network is available in any capacity (Wi-Fi, Ethernet, cellular, carrier pidgeon, etc) - we just care if we can reach iCloud. 
+    /// This is true if the network is available in any capacity (Wi-Fi, Ethernet, cellular, carrier pidgeon, etc) - we just care if we can reach iCloud.
     @Published public private(set) var networkAvailable: Bool? = nil
 
     @Published public private(set) var loggedIntoIcloud: Bool? = nil
@@ -404,11 +405,15 @@ public class SyncMonitor: ObservableObject {
     // MARK: - Initializers -
 
     /// Creates a new sync monitor and sets up listeners to sync and network changes
-    public init(setupState: SyncState = .notStarted, importState: SyncState = .notStarted,
-                exportState: SyncState = .notStarted, networkAvailable: Bool? = nil,
-                iCloudAccountStatus: CKAccountStatus? = nil,
-                lastErrorText: String? = nil,
-                listen: Bool = true) {
+    public init(
+        setupState: SyncState = .notStarted,
+        importState: SyncState = .notStarted,
+        exportState: SyncState = .notStarted,
+        networkAvailable: Bool? = nil,
+        iCloudAccountStatus: CKAccountStatus? = nil,
+        lastErrorText: String? = nil,
+        listen: Bool = true
+    ) {
         self.setupState = setupState
         self.importState = importState
         self.exportState = exportState
@@ -421,19 +426,18 @@ public class SyncMonitor: ObservableObject {
         guard listen else { return }
 
         // Monitor NSPersistentCloudKitContainer sync events
-        if #available(iOS 14.0, macCatalyst 14.0, *) { // Crashes on 13.7 w/o this, even though we have @available
-            NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
-                .sink(receiveValue: { notification in
-                    if let cloudEvent = notification.userInfo?[NSPersistentCloudKitContainer.eventNotificationUserInfoKey]
-                        as? NSPersistentCloudKitContainer.Event {
-                        let event = SyncEvent(from: cloudEvent) // To make testing possible
-                        // Properties need to be set on the main thread for SwiftUI, so we'll do that here
-                        // instead of maing setProperties run async code, which is inconvenient for testing.
-                        DispatchQueue.main.async { self.setProperties(from: event) }
-                    }
-                })
-                .store(in: &disposables)
-        }
+        NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)
+            .sink(receiveValue: { notification in
+                if let cloudEvent = notification.userInfo?[NSPersistentCloudKitContainer.eventNotificationUserInfoKey]
+                    as? NSPersistentCloudKitContainer.Event
+                {
+                    let event = SyncEvent(from: cloudEvent) // To make testing possible
+                    // Properties need to be set on the main thread for SwiftUI, so we'll do that here
+                    // instead of maing setProperties run async code, which is inconvenient for testing.
+                    DispatchQueue.main.async { self.setProperties(from: event) }
+                }
+            })
+            .store(in: &disposables)
 
         // Update the network status when the OS reports a change. Note that we ignore whether the connection is
         // expensive or not - we just care whether iCloud is _able_ to sync. If there's no network,
@@ -445,9 +449,9 @@ public class SyncMonitor: ObservableObject {
         monitor.pathUpdateHandler = { path in
             DispatchQueue.main.async {
                 #if os(watchOS)
-                self.networkAvailable = (path.availableInterfaces.count > 0)
+                    self.networkAvailable = (!path.availableInterfaces.isEmpty)
                 #else
-                self.networkAvailable = (path.status == .satisfied)
+                    self.networkAvailable = (path.status == .satisfied)
                 #endif
             }
         }
@@ -457,7 +461,7 @@ public class SyncMonitor: ObservableObject {
         self.updateiCloudAccountStatus()
         NotificationCenter.default.publisher(for: .CKAccountChanged)
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
-            .sink(receiveValue: { notification in
+            .sink(receiveValue: { _ in
                 self.updateiCloudAccountStatus()
             })
             .store(in: &disposables)
@@ -466,9 +470,15 @@ public class SyncMonitor: ObservableObject {
     /// Convenience initializer that creates a SyncMonitor with preset state values for testing or previews
     ///
     ///     let syncMonitor = SyncMonitor(importSuccessful: false, errorText: "Cloud distrupted by weather net")
-    public init(setupSuccessful: Bool = true, importSuccessful: Bool = true, exportSuccessful: Bool = true,
-                networkAvailable: Bool = true, iCloudAccountStatus: CKAccountStatus = .available, errorText: String?) {
-        var error: Error? = nil
+    public init(
+        setupSuccessful: Bool = true,
+        importSuccessful: Bool = true,
+        exportSuccessful: Bool = true,
+        networkAvailable: Bool = true,
+        iCloudAccountStatus: CKAccountStatus = .available,
+        errorText: String?
+    ) {
+        var error: Error?
         if let errorText = errorText {
             error = NSError(domain: errorText, code: 0, userInfo: nil)
         }
@@ -492,7 +502,7 @@ public class SyncMonitor: ObservableObject {
     /// When SyncMonitor is listening to notifications (which it does unless you tell it not to when initializing), this method is called each time CKContainer
     /// fires off a `.CKAccountChanged` notification.
     private func updateiCloudAccountStatus() {
-        CKContainer.default().accountStatus { (accountStatus, error) in
+        CKContainer.default().accountStatus { accountStatus, error in
             DispatchQueue.main.async {
                 if let e = error {
                     self.iCloudAccountStatusUpdateError = e
@@ -522,14 +532,14 @@ public class SyncMonitor: ObservableObject {
         }
 
         switch event.type {
-        case .setup:
-            setupState = state
-        case .import:
-            importState = state
-        case .export:
-            exportState = state
-        @unknown default:
-            assertionFailure("NSPersistentCloudKitContainer added a new event type.")
+            case .setup:
+                setupState = state
+            case .import:
+                importState = state
+            case .export:
+                exportState = state
+            @unknown default:
+                assertionFailure("NSPersistentCloudKitContainer added a new event type.")
         }
 
         if event.error != nil {
@@ -546,8 +556,13 @@ public class SyncMonitor: ObservableObject {
         var error: Error?
 
         /// Creates a SyncEvent from explicitly provided values (for testing)
-        init(type: NSPersistentCloudKitContainer.EventType, startDate: Date?, endDate: Date?, succeeded: Bool,
-             error: Error?) {
+        init(
+            type: NSPersistentCloudKitContainer.EventType,
+            startDate: Date?,
+            endDate: Date?,
+            succeeded: Bool,
+            error: Error?
+        ) {
             self.type = type
             self.startDate = startDate
             self.endDate = endDate
@@ -608,7 +623,7 @@ public class SyncMonitor: ObservableObject {
         /// Note that this property will report all errors, including those caused by normal things like being offline.
         /// See also `SyncMonitor.importError` and `SyncMonitor.exportError` for more intelligent error reporting.
         var error: Error? {
-            if case let .failed(_,_,error) = self, let e = error {
+            if case let .failed(_, _, error) = self, let e = error {
                 return e
             }
             return nil

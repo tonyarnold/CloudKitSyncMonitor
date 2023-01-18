@@ -1,26 +1,31 @@
 //
 //  SyncMonitorTests.swift
-//  
+//
 //
 //  Created by Grant Grueninger on 9/23/20.
 //
 
 import Foundation
 
-import XCTest
-import CoreData
 @testable import CloudKitSyncMonitor
+import CoreData
+import XCTest
 
 final class SyncMonitorTests: XCTestCase {
     func testCanDetectImportError() {
         // Given an active network connection
-        let syncStatus: SyncMonitor = SyncMonitor(networkAvailable: true, listen: false)
+        let syncStatus = SyncMonitor(networkAvailable: true, listen: false)
 
         // When NSPersistentCloudKitContainer reports an unsuccessful import
         let errorText = "I don't like clouds"
         let error = NSError(domain: errorText, code: 0, userInfo: nil)
-        let event = SyncMonitor.SyncEvent(type: .import, startDate: Date(), endDate: Date(), succeeded: false,
-                                          error: error)
+        let event = SyncMonitor.SyncEvent(
+            type: .import,
+            startDate: Date(),
+            endDate: Date(),
+            succeeded: false,
+            error: error
+        )
         syncStatus.setProperties(from: event)
 
         // Then importError's description is "I don't like clouds"
@@ -41,8 +46,13 @@ final class SyncMonitorTests: XCTestCase {
         // When NSPersistentCloudKitContainer reports an unsuccessful import
         let errorText = "I don't like clouds"
         let error = NSError(domain: errorText, code: 0, userInfo: nil)
-        let event = SyncMonitor.SyncEvent(type: .export, startDate: Date(), endDate: Date(), succeeded: false,
-                                          error: error)
+        let event = SyncMonitor.SyncEvent(
+            type: .export,
+            startDate: Date(),
+            endDate: Date(),
+            succeeded: false,
+            error: error
+        )
         syncStatus.setProperties(from: event)
 
         // Then exportError's description is "I don't like clouds"
@@ -58,11 +68,16 @@ final class SyncMonitorTests: XCTestCase {
 
     func testCanDetectImportSuccess() {
         // Given an active network connection
-        let syncStatus: SyncMonitor = SyncMonitor(networkAvailable: true, listen: false)
+        let syncStatus = SyncMonitor(networkAvailable: true, listen: false)
 
         // When NSPersistentCloudKitContainer reports a successful import
-        let event = SyncMonitor.SyncEvent(type: .import, startDate: Date(), endDate: Date(), succeeded: true,
-                                          error: nil)
+        let event = SyncMonitor.SyncEvent(
+            type: .import,
+            startDate: Date(),
+            endDate: Date(),
+            succeeded: true,
+            error: nil
+        )
         syncStatus.setProperties(from: event)
 
         // Then importError is nil
@@ -78,11 +93,16 @@ final class SyncMonitorTests: XCTestCase {
 
     func testCanDetectExportSuccess() {
         // Given an active network connection
-        let syncStatus: SyncMonitor = SyncMonitor(networkAvailable: true, listen: false)
+        let syncStatus = SyncMonitor(networkAvailable: true, listen: false)
 
         // When NSPersistentCloudKitContainer reports a successful export
-        let event = SyncMonitor.SyncEvent(type: .export, startDate: Date(), endDate: Date(), succeeded: true,
-                                          error: nil)
+        let event = SyncMonitor.SyncEvent(
+            type: .export,
+            startDate: Date(),
+            endDate: Date(),
+            succeeded: true,
+            error: nil
+        )
         syncStatus.setProperties(from: event)
 
         // Then exportError is nil
@@ -98,11 +118,16 @@ final class SyncMonitorTests: XCTestCase {
 
     func testSetsStatusToInProgressWhenEventHasNoEndDate() {
         // Given an active network connection
-        let syncStatus: SyncMonitor = SyncMonitor(networkAvailable: true, listen: false)
+        let syncStatus = SyncMonitor(networkAvailable: true, listen: false)
 
         // When NSPersistentCloudKitContainer reports an event with a start date but no end date
-        let event = SyncMonitor.SyncEvent(type: .export, startDate: Date(), endDate: nil, succeeded: false,
-                                          error: nil)
+        let event = SyncMonitor.SyncEvent(
+            type: .export,
+            startDate: Date(),
+            endDate: nil,
+            succeeded: false,
+            error: nil
+        )
         syncStatus.setProperties(from: event)
 
         // Then exportError is nil
@@ -118,7 +143,7 @@ final class SyncMonitorTests: XCTestCase {
 
     func testSetsStatusToNotStartedOnStartup() {
         // Given an active network connection
-        let syncStatus: SyncMonitor = SyncMonitor(networkAvailable: true, listen: false)
+        let syncStatus = SyncMonitor(networkAvailable: true, listen: false)
 
         // When we check status before an event has been reported
         let status = syncStatus.importState
